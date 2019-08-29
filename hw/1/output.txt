@@ -1,0 +1,52 @@
+list of 100 random numbers: 
+[2, 1, 23, 22, 17, 65, 6, 2, 17, 44, 57, 97, 44, 26, 31, 37, 59, 64, 27, 18, 32, 20, 62, 79, 19, 91, 83, 79, 1, 41, 5, 26, 6, 35, 14, 32, 80, 89, 97, 57, 82, 7, 29, 26, 42, 72, 5, 36, 100, 17, 62, 75, 100, 72, 61, 95, 66, 72, 83, 83, 16, 51, 67, 57, 56, 91, 33, 83, 62, 58, 47, 86, 99, 39, 83, 52, 93, 25, 6, 2, 84, 3, 53, 5, 48, 73, 93, 73, 94, 71, 43, 62, 55, 33, 69, 87, 90, 18, 13, 89]
+
+ Sd while adding number: 1278.9666666666667
+ Sd while deleting number: 1278.966666666668
+ mean while adding number: 19.9
+ mean while deleting number: 19.90000000000001
+
+ Sd while adding number: 2824.784460361533
+ Sd while deleting number: 2824.7844603615335
+ mean while adding number: 32.95
+ mean while deleting number: 32.95
+
+ Sd while adding number: 4395.681007813478
+ Sd while deleting number: 4395.681007813478
+ mean while adding number: 38.86666666666666
+ mean while deleting number: 38.86666666666666
+
+ Sd while adding number: 5538.796811283358
+ Sd while deleting number: 5538.796811283358
+ mean while adding number: 40.175
+ mean while deleting number: 40.175
+
+ Sd while adding number: 6306.917142857143
+ Sd while deleting number: 6306.917142857143
+ mean while adding number: 40.46
+ mean while deleting number: 40.46
+
+ Sd while adding number: 7394.070519895158
+ Sd while deleting number: 7394.070519895158
+ mean while adding number: 46.53333333333333
+ mean while deleting number: 46.53333333333333
+
+ Sd while adding number: 7470.843358072218
+ Sd while deleting number: 7470.843358072218
+ mean while adding number: 48.08571428571428
+ mean while deleting number: 48.08571428571428
+
+ Sd while adding number: 8305.168241616215
+ Sd while deleting number: 8305.168241616215
+ mean while adding number: 48.725
+ mean while deleting number: 48.725
+
+ Sd while adding number: 8971.26261304827
+ Sd while deleting number: 8971.26261304827
+ mean while adding number: 49.94444444444444
+ mean while deleting number: 49.94444444444444
+
+ Sd while adding number: 9282.21166978446
+ Sd while deleting number: 9282.21166978446
+ mean while adding number: 50.540000000000006
+ mean while deleting number: 50.540000000000006
