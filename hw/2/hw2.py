@@ -1,5 +1,5 @@
 import re
-
+import operator
 # code provided by instructor start with some self modification
 def compiler(x):
     "return something that can compile strings of type x"
@@ -40,22 +40,26 @@ def cells(src, col_len):
     "convert strings into their right types"
     oks = None
     for n, cells in enumerate(src):
-        if n==0:
+        if len(cells) != col_len:
+            yield "E> skipping line"
+        elif n==0:
             yield cells
         else:
             oks = oks or [compiler(cell) for cell in cells]
             yield [f(cell) for f,cell in zip(oks,cells)]
 
 
+
 def fromString(s):
     "putting it all together"
-    for lst in cells(rows(string(s))):
-        yield lst
+    tmp = rows(string(s))
+    col_name = next(tmp)
+    columns = [i for i in range(len(col_name)) if '?' not in col_name[i]]
+    yield(operator.itemgetter(*columns)(col_name))
+
+    for lst in cells(tmp, len(col_name)):
+        yield list(operator.itemgetter(*columns)(lst))
 # code provided by instructor end after some self modification
-
-
-class Row:
-    pass
 
 
 class Col:
