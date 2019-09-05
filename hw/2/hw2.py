@@ -42,10 +42,8 @@ def cells(src, col_len):
     for n, cells in enumerate(src):
         if len(cells) != col_len:
             yield "E> skipping line"
-        elif n==0:
-            yield cells
         else:
-            oks = oks or [compiler(cell) for cell in cells]
+            oks = [compiler(cell) for cell in cells]
             yield [f(cell) for f,cell in zip(oks,cells)]
 
 
@@ -56,9 +54,11 @@ def fromString(s):
     col_name = next(tmp)
     columns = [i for i in range(len(col_name)) if '?' not in col_name[i]]
     yield(operator.itemgetter(*columns)(col_name))
-
     for lst in cells(tmp, len(col_name)):
-        yield list(operator.itemgetter(*columns)(lst))
+        if type(lst) != list:
+            yield lst
+        else:
+            yield list(operator.itemgetter(*columns)(lst))
 # code provided by instructor end after some self modification
 
 
@@ -138,8 +138,9 @@ class Table:
                     self.cols.append([Num(i, row[i]), self.oid])
                     self.oid += 1
             else:
-                for i in range(len(self.cols)):
-                    self.cols[i][0].add(row[i])
+                if "E> skipping line" not in row:
+                    for i in range(len(self.cols)):
+                        self.cols[i][0].add(row[i])
                 self.rows.append([Row(row), self.oid])
                 self.oid += 1
 
@@ -156,17 +157,41 @@ class Table:
         #     file.write(str(row[0].cells))
         # file.close()
         """ While reading file after extra checks """
-        file = open("output2.txt", 'w+')
-        temp = []
-        for col in self.cols:
-            temp.append(col[0].col_name)
-        file.write(str(temp))
-        for row in self.rows:
-            # print(row[0].cells)
-            file.write('\n')
-            file.write(str(row[0].cells))
+        # file = open("output2.txt", 'w+')
+        # temp = []
+        # for col in self.cols:
+        #     temp.append(col[0].col_name)
+        # file.write(str(temp))
+        # for row in self.rows:
+        #     # print(row[0].cells)
+        #     file.write('\n')
+        #     file.write(str(row[0].cells))
+        # file.close()
+
+        """While writing in the required format"""
+        file = open("output3.txt", "w+")
+        file.write("table_columns")
+        for i in range(len(self.cols)):
+            file.write("\n|\t"+str(i+1))
+            file.write("\n|\t|\tn: "+str(self.cols[i][0].n))
+            file.write("\n|\t|\tcol_names: "+self.cols[i][0].col_name)
+            file.write("\n|\t|\tpos: "+str(self.cols[i][0].pos))
+            file.write("\n|\t|\thi: "+str(self.cols[i][0].hi))
+            file.write("\n|\t|\tlo: "+str(self.cols[i][0].lo))
+            file.write("\n|\t|\tmu: "+str(self.cols[i][0].mu))
+            file.write("\n|\t|\tm2: "+str(self.cols[i][0].m2))
+            file.write("\n|\t|\tsd: "+str(self.cols[i][0].sd))
+            file.write("\nt.oid: "+str(self.cols[i][1]))
+        file.write('\ntable_rows')
+        for i in range(len(self.rows)):
+            file.write("\n|\t" + str(i + 1))
+            file.write("\n|\t|\t" + "cells")
+            for j in range(len(self.rows[i][0].cells)):
+                file.write("\n|\t|\t|\t" + str(j+1)+": "+str(self.rows[i][0].cells[j]))
+            file.write("\n|\t|\tcooked: "+ str(self.rows[i][0].cooked))
+            file.write("\n|\t|\tdom: "+str(self.rows[i][0].dom))
+            file.write("\n|\t|\toid: "+str(self.rows[i][1]))
         file.close()
-        pass
 
 
 if __name__ == "__main__":
@@ -202,7 +227,7 @@ if __name__ == "__main__":
       70,         64,    65,    15,   5
       0,          72,    95,    0,    0
       0,          69,    70,    0,    4
-      ?,          75,    80,    0,    ?
+      0,          75,    80,    0,    0
       0,          75,    70,    18,   4
       60,         72,
       40,         81,    75,    0,    2
