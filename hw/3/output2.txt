@@ -1,0 +1,57 @@
+table_columns
+|	1
+|	|	n: 14
+|	|	pos: 0
+|	|	col_name: outlook
+|	|	weight: 1
+|	|	add: Sym1
+|	|	cnt
+|	|	|	rainy: 5
+|	|	|	sunny: 5
+|	|	|	overcast: 4
+|	|	mode: sunny
+|	|	most: 5
+|	2
+|	|	n: 14
+|	|	pos: 1
+|	|	col_name: <humid
+|	|	weight: -1
+|	|	add: Num1
+|	|	hi: 96
+|	|	lo: 65
+|	|	mu: 81.64285714285715
+|	|	m2: 1375.2142857142858
+|	|	sd: 381.4158170687263
+t.oid: 2
+|	3
+|	|	n: 14
+|	|	pos: 2
+|	|	col_name: wind
+|	|	weight: 1
+|	|	add: Sym1
+|	|	cnt
+|	|	|	FALSE: 8
+|	|	|	TRUE: 6
+|	|	mode: FALSE
+|	|	most: 8
+|	4
+|	|	n: 14
+|	|	pos: 3
+|	|	col_name: !play
+|	|	weight: 1
+|	|	add: Sym1
+|	|	cnt
+|	|	|	yes: 9
+|	|	|	no: 5
+|	|	mode: yes
+|	|	most: 9
+t.my
+|	nums
+|	|	 2
+|	syms
+|	|	 1
+|	|	 3
+|	|	 4
+|	goals
+|	|	 2
+|	|	 4
