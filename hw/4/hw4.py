@@ -125,6 +125,11 @@ class Num(Col):
         self.m2 -= d * (b - self.mu)
         self.sd = self.num_sd()
         return b
+    def num_like(self, x):
+        var = self.sd**2
+        denom = (3.14159*2(var))**0.5
+        num = 2.71828**(-(x-self.mu)**2/(2*var+0.0001))
+        return num/(denom + 10**-64)
 
 
 class ABCD:
@@ -230,6 +235,10 @@ class Sym(Col):
             self.add(str1)
         return self.sym_ent()
 
+    def sym_like(self, x, prior, m):
+        f = 0 if x not in self.cnt else self.cnt[x]
+        return (f + m * prior)/(self.n + m)
+
 class Table:
     def __init__(self):
         self.oid = 1
@@ -300,8 +309,6 @@ class Table:
             file.write("\n|\t|\t " + str(i))
         file.close()
 
-# added on 18th Sep
-
 
 class ZeroR:
     def __init__(self, cols):
@@ -314,8 +321,6 @@ class ZeroR:
 
     def classify(self, row):
         return row[self.goalIndex], self.table.cols[self.goalIndex].mode
-
-#######
 
 
 if __name__ == "__main__":
