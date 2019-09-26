@@ -128,7 +128,78 @@ class Num(Col):
 
 
 class ABCD:
-    pass
+    def __init__(self, data = "", rx = ""):
+        self.known = {}
+        self.a = {}
+        self.b = {}
+        self.c = {}
+        self.d = {}
+        self.rx = "rx" if rx == "" else rx
+        self.data = "data" if data == "" else data
+        self.yes = self.no = 0
+
+    def ABCD1(self, want, got):
+        if want not in self.known:
+            self.known[want] = 1
+            self.a[want] = self.yes + self.no
+        else:
+            self.known[want] += 1
+        if got not in self.known:
+            self.known[got] = 1
+            self.a[want] = self.yes + self.no
+        if want == got:
+            self.yes += 1
+        else:
+            self.no += 1
+        for x in self.known:
+            if want == x:
+                if want == got:
+                    if x not in self.d:
+                        self.d[x] = 0
+                    self.d[x] += 1
+                else:
+                    if x not in self.b:
+                        self.b[x] = 0
+                    self.b[x] += 1
+            else:
+                if got == x:
+                    if x not in self.c:
+                        self.c[x] = 0
+                    self.c[x] += 1
+                else:
+                    if x not in self.a:
+                        self.a[x] = 0
+                    self.a[x] += 1
+
+    def ABCD_report(self):
+        file = open("output3.txt", 'w+')
+        file.write(str(
+            "   db |    rx |   num |     a |     b |     c |     d |  acc |  pre |   pd |   pf |    f |    g | class") + '\n')
+        file.write(str(
+            " ---- |  ---- |  ---- |  ---- |  ---- |  ---- |  ---- | ---- | ---- | ---- | ---- | ---- | ---- |-------") + '\n')
+        for x in self.known:
+            pd = pf = pn = prec = g = f = acc = 0
+            a = 0 if x not in self.a else self.a[x]
+            b = 0 if x not in self.b else self.b[x]
+            c = 0 if x not in self.c else self.c[x]
+            d = 0 if x not in self.d else self.d[x]
+            if (b + d > 0):
+                pd = d / (b + d)
+            if (a + c > 0):
+                pf = c / (a + c)
+                pn = (b + d) / (a + c)
+            if (c + d > 0):
+                prec = d / (c + d)
+            if (1 - pf + pd > 0):
+                g = 2 * (1 - pf) * pd / (1 - pf + pd)
+            if (prec + pd > 0):
+                f = 2 * prec * pd / (prec + pd)
+            if (self.yes + self.no > 0):
+                acc = self.yes / (self.yes + self.no)
+            file.write(str(self.data + "  |   " + self.rx + "  |   " + str(self.yes + self.no) + "  |   " + str(
+                a) + "  |   " + str(b) + "   |  " + str(c) + "    |   " + str(d) + "   | " + str(
+                round(acc, 2)) + " | " + str(round(prec, 2)) + "  |  " + str(round(pd, 2)) + "|  " + str(
+                round(pf, 2)) + " | " + str(round(f, 2)) + " |  " + str(round(g, 2)) + "| " + str(x)) + '\n')
 
 
 class Sym(Col):
@@ -184,6 +255,7 @@ class Table:
                             self.cols.append([Num(row[j], j, 1), self.oid])
                     else:
                         self.syms.append(j+1)
+                        self.xs.append(j+1)
                         self.cols.append([Sym(row[j], j, 1),self.oid])
                     self.oid += 1
             else:
@@ -227,6 +299,9 @@ class Table:
         file.write('\n|\tgoals')
         for i in self.goals:
             file.write("\n|\t|\t " + str(i))
+        # file.write('\n|\txs')
+        # for i in self.xs:
+        #     file.write("\n|\t|\t " + str(i))
         file.close()
 
 
@@ -257,3 +332,13 @@ if __name__ == "__main__":
     file = open("output1.txt", 'w+')
     file.write("entropy of test string is: {}".format(ent.test_entropy('aaaabbc')))
     file.close()
+
+    report = ABCD("", "")
+    for i in range(6):
+        report.ABCD1('yes', 'yes')
+    for i in range(2):
+        report.ABCD1('no', 'no')
+    for i in range(5):
+        report.ABCD1('maybe', 'maybe')
+    report.ABCD1("maybe", "no")
+    report.ABCD_report()
