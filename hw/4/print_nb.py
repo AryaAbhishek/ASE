@@ -1,7 +1,7 @@
-from hw4 import Table, ZeroR, ABCD, fromString
+from hw4 import Table, NB, ABCD, fromString
 import csv
 if __name__ == "__main__":
-    t_count = 3
+    t_count = 4
     file = ""
     with open('weathernon.csv','r') as lines:
         reader = csv.reader(lines, delimiter=' ', quotechar='|')
@@ -9,21 +9,21 @@ if __name__ == "__main__":
             file += ','.join(row)
             file += '\n'
     tbl = Table()
-    zr = ZeroR(1)
+    nb = NB()
     ab = ABCD()
     lines = fromString(file)
     train_count = 3
     for i, row in enumerate(lines):
         if i == 0:
-            zr.train(i, row)
+            nb.NBTrain(i, row)
         else:
-            if i-1<train_count:
-                zr.train(i, row)
+            if i-1 < train_count:
+                nb.NBTrain(i, row)
             else:
-                classify = zr.classify(i, row)
+                classify = nb.NBClassify(i, row)
                 ab.ABCD1(row[-1], classify)
-                zr.train(i, row)
-    file1 = open("output1.txt", 'w+')
+                nb.NBTrain(i, row)
+    file1 = open("output2.txt", 'w+')
     file1.write("#--- Zeror -------------------------\n")
     file1.write("weathornon \n")
     string = ab.ABCD_report()
@@ -37,20 +37,20 @@ if __name__ == "__main__":
             file += ','.join(row)
             file += '\n'
     tbl = Table()
-    zr = ZeroR(1)
+    nb = NB()
     ab = ABCD()
     lines = fromString(file)
     train_count = 3
     for i, row in enumerate(lines):
         if i == 0:
-            zr.train(i, row)
+            nb.NBTrain(i, row)
         else:
             if i - 1 < train_count:
-                zr.train(i, row)
+                nb.NBTrain(i, row)
             else:
-                classify = zr.classify(i, row)
+                classify = nb.NBClassify(i, row)
                 ab.ABCD1(row[-1], classify)
-                zr.train(i, row)
+                nb.NBTrain(i, row)
     file1.write("\n diabetes \n")
     string = ab.ABCD_report()
     for s in string:

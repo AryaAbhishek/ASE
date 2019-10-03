@@ -2,6 +2,7 @@ import re
 import operator
 import math
 import csv
+from math import log
 from collections import defaultdict
 
 # code provided by instructor start with some self modification
@@ -360,48 +361,58 @@ class ZeroR:
     def train(self, i, row):
         self.table.read_lines(i, row)
 
-    def classify(self, row):
+    def classify(self, i, row):
         return self.table.cols[-1][0].mode
 
 
 class NB:
     def __init__(self):
-        self.m = 0
-        self.k = 0
+        self.m = 2
+        self.k = 1
         self.n = -1
         self.tbl = Table()
         self.things = {}
+        self.index = []
+        self.header = []
 
-    def NBTrain(self, r, lst):
-        if r>1:
-            self.n += 1
-            cls = lst[self.tbl]
+    def NBTrain(self, r, row):
+        if r == 0:
+            self.tbl.read_lines(r, row)
+            for i in self.tbl.index:
+                self.index.append(i)
+                self.header.append(row[i])
+        else:
+            self.tbl.read_lines(r, row)
+            cls = row[-1]
             self.NBEnsureClassExist(cls)
+            self.things[cls].read_lines(r, row)
+        self.n += 1
 
     def NBEnsureClassExist(self, cls):
         if cls not in self.things:
-            self.things[cls] = self.tbl()
+            self.things[cls] = Table()
+            self.things[cls].index = self.index
 
-    def NBClassify(self, r, lst):
+    def NBClassify(self, r, row):
         most = -10**64
         guess = ""
         for cls in self.things:
             guess = cls if guess == "" else guess
-            like = self.bayestheorem(lst, self.n, len(self.things), self.things[cls], cls)
+            like = self.bayestheorem(row, self.n, len(self.things), self.things[cls], cls)
             if like>most:
                 most = like
                 guess = cls
         return guess
 
-    def bayestheorem(self, lst, nall, nthings, thing, cls):
-        n1 = self.tbl.cols[nall-1].cnt[cls]
+    def bayestheorem(self, row, nall, nthings, thing, cls):
+        n1 = self.tbl.cols[len(row)-1][0].cnt[cls]
         like = prior = (n1 + self.k)/(nall + self.k * nthings)
         like = math.log10(like)
         for c in thing.xs:
-            x = lst[c]
+            x = row[c]
             if x == '\n': continue
             if c in thing.nums:
-                like += math.log10(thing.col[c].num_like(x))
+                like += math.log10(thing.col[c][0].num_like(x))
             else:
-                like += math.log10(thing.col[c].sym_like(x, prior, self.m))
+                like += math.log10(thing.col[c][0].sym_like(x, prior, self.m))
         return like
