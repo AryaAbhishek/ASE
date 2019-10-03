@@ -38,30 +38,23 @@ def rows(src, sep=",", doomed=r'([\n\t\r ]|#.*)'):
             yield line.split(sep)
 
 
-def cells(src, col_len):
+def cells(src):
     "convert strings into their right types"
     oks = None
     for n, cells in enumerate(src):
-        if len(cells) != col_len:
-            yield "E> skipping line"
+        if n == 0:
+            yield cells
         else:
-            oks = [compiler(cell) for cell in cells]
-            yield [f(cell) for f,cell in zip(oks,cells)]
+            oks = oks or [compiler(cell) for cell in cells]
+            yield [f(cell) for f, cell in zip(oks, cells)]
 
 
 
 def fromString(s):
     "putting it all together"
-    tmp = rows(string(s))
-    col_name = next(tmp)
-    columns = [i for i in range(len(col_name)) if '?' not in col_name[i]]
-    yield(operator.itemgetter(*columns)(col_name))
-    for lst in cells(tmp, len(col_name)):
-        if type(lst) != list:
-            yield lst
-        else:
-            yield list(operator.itemgetter(*columns)(lst))
-# code provided by instructor end after some self modification
+    "putting it all together"
+    for lst in cells(rows(string(s))):
+        yield lst
 
 
 class Col:
@@ -233,6 +226,8 @@ class Sym(Col):
 class Table:
     def __init__(self):
         self.oid = 1
+        self.index = []
+        self.col_len = 0
         self.rows = []
         self.cols = []
         self.goals = []
@@ -244,22 +239,31 @@ class Table:
         tbl = fromString(lines)
         for i, row in enumerate(tbl):
             if i == 0:
+                self.col_len = len(row)
                 for j in range(len(row)):
-                    if re.search(r"[<>!]", row[j]):
-                        self.goals.append(j+1)
-                    if re.search(r"[<>$]", row[j]):
-                        self.nums.append(j+1)
-                        if re.search(r"[<]", row[j]):
-                            self.cols.append([Num(row[j],j, -1), self.oid])
+                    if '?' not in row[j]:
+                        self.index.append(j)
+                        if re.search(r"[<>!]", row[j]):
+                            self.goals.append(j+1)
+                        if re.search(r"[<>$]", row[j]):
+                            self.nums.append(j+1)
+                            if re.search(r"[<]", row[j]):
+                                self.cols.append([Num(row[j],j, -1), self.oid])
+                            else:
+                                self.cols.append([Num(row[j], j, 1), self.oid])
                         else:
-                            self.cols.append([Num(row[j], j, 1), self.oid])
-                    else:
-                        self.syms.append(j+1)
-                        self.xs.append(j+1)
-                        self.cols.append([Sym(row[j], j, 1),self.oid])
-                    self.oid += 1
+                            self.syms.append(j+1)
+                            self.xs.append(j+1)
+                            self.cols.append([Sym(row[j], j, 1),self.oid])
+                        self.oid += 1
             else:
+                if len(row) != self.col_len:
+                    row = "E> skipping line"
                 if "E> skipping line" not in row:
+                    tmp = len(row) - 1
+                    for j in range(tmp, -1, -1):
+                        if j not in self.index:
+                            del row[j]
                     for j in range(len(self.cols)):
                         self.cols[j][0].add(row[j])
                 self.rows.append([Row(row), self.oid])

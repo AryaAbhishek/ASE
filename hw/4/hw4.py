@@ -1,8 +1,12 @@
 import re
 import operator
 import math
+import csv
 from collections import defaultdict
+
 # code provided by instructor start with some self modification
+
+
 def compiler(x):
     "return something that can compile strings of type x"
     try: int(x); return  int
@@ -38,39 +42,32 @@ def rows(src, sep=",", doomed=r'([\n\t\r ]|#.*)'):
             yield line.split(sep)
 
 
-def cells(src, col_len):
+def cells(src):
     "convert strings into their right types"
     oks = None
     for n, cells in enumerate(src):
-        if len(cells) != col_len:
-            yield "E> skipping line"
+        if n == 0:
+            yield cells
         else:
-            oks = [compiler(cell) for cell in cells]
-            yield [f(cell) for f,cell in zip(oks,cells)]
+            oks = oks or [compiler(cell) for cell in cells]
+            yield [f(cell) for f, cell in zip(oks, cells)]
 
 
 
 def fromString(s):
     "putting it all together"
-    tmp = rows(string(s))
-    col_name = next(tmp)
-    columns = [i for i in range(len(col_name)) if '?' not in col_name[i]]
-    yield(operator.itemgetter(*columns)(col_name))
-    for lst in cells(tmp, len(col_name)):
-        if type(lst) != list:
-            yield lst
-        else:
-            yield list(operator.itemgetter(*columns)(lst))
-# code provided by instructor end after some self modification
+    "putting it all together"
+    for lst in cells(rows(string(s))):
+        yield lst
 
 
 class Col:
     # initialize n - total numbers used to find mean and SD
-    def __init__(self, col_name, pos, weight):
+    def __init__(self, col_name, pos, text):
         self.n = 0
         self.col_name = pos
         self.pos = col_name
-        self.weight = weight
+        self.text = text
 
 
 class Row:
@@ -82,8 +79,8 @@ class Row:
 
 class Num(Col):
     # lo - lowest number, hi - highest number, mu - mean, m2 - summation of square of differences from mean
-    def __init__(self, col_name, pos, weight):
-        super().__init__(col_name, pos, weight)
+    def __init__(self, col_name, pos, text):
+        super().__init__(col_name, pos, text)
         self.mu = self.m2 = self.sd = 0
         self.lo = 10**32
         self.hi = -1*self.lo
@@ -125,6 +122,7 @@ class Num(Col):
         self.m2 -= d * (b - self.mu)
         self.sd = self.num_sd()
         return b
+
     def num_like(self, x):
         var = self.sd**2
         denom = (3.14159*2(var))**0.5
@@ -177,10 +175,10 @@ class ABCD:
                     self.a[x] += 1
 
     def ABCD_report(self):
-        file = open("output3.txt", 'w+')
-        file.write(str(
+        string = []
+        string.append(str(
             "   db |    rx |   num |     a |     b |     c |     d |  acc |  pre |   pd |   pf |    f |    g | class") + '\n')
-        file.write(str(
+        string.append(str(
             " ---- |  ---- |  ---- |  ---- |  ---- |  ---- |  ---- | ---- | ---- | ---- | ---- | ---- | ---- |-------") + '\n')
         for x in self.known:
             pd = pf = pn = prec = g = f = acc = 0
@@ -201,15 +199,15 @@ class ABCD:
                 f = 2 * prec * pd / (prec + pd)
             if (self.yes + self.no > 0):
                 acc = self.yes / (self.yes + self.no)
-            file.write(str(self.data + "  |   " + self.rx + "  |   " + str(self.yes + self.no) + "  |   " + str(
+            string.append(str(self.data + "  |   " + self.rx + "  |   " + str(self.yes + self.no) + "  |   " + str(
                 a) + "  |   " + str(b) + "   |  " + str(c) + "    |   " + str(d) + "   | " + str(
                 round(acc, 2)) + " | " + str(round(prec, 2)) + "  |  " + str(round(pd, 2)) + "|  " + str(
                 round(pf, 2)) + " | " + str(round(f, 2)) + " |  " + str(round(g, 2)) + "| " + str(x)) + '\n')
-
+        return string
 
 class Sym(Col):
-    def __init__(self, col_name, pos, weight):
-        super().__init__(col_name, pos, weight)
+    def __init__(self, col_name, pos, text):
+        super().__init__(col_name, pos, text)
         self.mode = ""
         self.most = 0
         self.cnt = defaultdict(int)
@@ -242,6 +240,8 @@ class Sym(Col):
 class Table:
     def __init__(self):
         self.oid = 1
+        self.index = []
+        self.col_len = 0
         self.rows = []
         self.cols = []
         self.goals = []
@@ -249,25 +249,67 @@ class Table:
         self.nums = []
         self.syms = []
 
+    def read_lines(self,i, row):
+        if i == 0:
+            self.col_len = len(row)
+            for j in range(len(row)):
+                if '?' not in row[j]:
+                    self.index.append(j)
+                    if re.search(r"[<>!]", row[j]):
+                        self.goals.append(j + 1)
+                    if re.search(r"[<>$]", row[j]):
+                        self.nums.append(j + 1)
+                        if re.search(r"[<]", row[j]):
+                            self.cols.append([Num(row[j], j, row[j]), self.oid])
+                        else:
+                            self.cols.append([Num(row[j], j, row[j]), self.oid])
+                    else:
+                        self.syms.append(j + 1)
+                        self.xs.append(j + 1)
+                        self.cols.append([Sym(row[j], j, 1), self.oid])
+                    self.oid += 1
+        else:
+            if len(row) != self.col_len:
+                row = "E> skipping line"
+            if "E> skipping line" not in row:
+                tmp = len(row) - 1
+                for j in range(tmp, -1, -1):
+                    if j not in self.index:
+                        del row[j]
+                for j in range(len(self.cols)):
+                    self.cols[j][0].add(row[j])
+            self.rows.append([Row(row), self.oid])
+            self.oid += 1
+
     def read(self, lines):
         tbl = fromString(lines)
         for i, row in enumerate(tbl):
             if i == 0:
+                self.col_len = len(row)
                 for j in range(len(row)):
-                    if re.search(r"[<>!]", row[j]):
-                        self.goals.append(j+1)
-                    if re.search(r"[<>$]", row[j]):
-                        self.nums.append(j+1)
-                        if re.search(r"[<]", row[j]):
-                            self.cols.append([Num(row[j],j, -1), self.oid])
+                    if '?' not in row[j]:
+                        self.index.append(j)
+                        if re.search(r"[<>!]", row[j]):
+                            self.goals.append(j+1)
+                        if re.search(r"[<>$]", row[j]):
+                            self.nums.append(j+1)
+                            if re.search(r"[<]", row[j]):
+                                self.cols.append([Num(row[j],j, row[j]), self.oid])
+                            else:
+                                self.cols.append([Num(row[j], j, row[j]), self.oid])
                         else:
-                            self.cols.append([Num(row[j], j, 1), self.oid])
-                    else:
-                        self.syms.append(j+1)
-                        self.cols.append([Sym(row[j], j, 1),self.oid])
-                    self.oid += 1
+                            self.syms.append(j+1)
+                            self.xs.append(j+1)
+                            self.cols.append([Sym(row[j], j, 1),self.oid])
+                        self.oid += 1
             else:
+                if len(row) != self.col_len:
+                    row = "E> skipping line"
                 if "E> skipping line" not in row:
+                    tmp = len(row) - 1
+                    for j in range(tmp, -1, -1):
+                        if j not in self.index:
+                            del row[j]
                     for j in range(len(self.cols)):
                         self.cols[j][0].add(row[j])
                 self.rows.append([Row(row), self.oid])
@@ -313,40 +355,53 @@ class Table:
 class ZeroR:
     def __init__(self, cols):
         self.table = Table()
-        self.table.read(cols)
-        self.goalIndex = self.table.goals[0]
+        self.goalIndex = cols + 1
 
-    def train(self, row):
-        self.table.read(row)
+    def train(self, i, row):
+        self.table.read_lines(i, row)
 
     def classify(self, row):
-        return row[self.goalIndex], self.table.cols[self.goalIndex].mode
+        return self.table.cols[-1][0].mode
 
 
-if __name__ == "__main__":
-    s = """
-    outlook, ?$temp,  <humid, wind, !play
-    rainy, 68, 80, FALSE, yes # comments
-    sunny, 85, 85,  FALSE, no
-    sunny, 80, 90, TRUE, no
-    overcast, 83, 86, FALSE, yes
-    rainy, 70, 96, FALSE, yes
-    rainy, 65, 70, TRUE, no
-    overcast, 64, 65, TRUE, yes
-    sunny, 72, 95, FALSE, no
-    sunny, 69, 70, FALSE, yes
-    rainy, 75, 80, FALSE, yes
-    sunny, 75, 70, TRUE, yes
-    overcast, 72, 90, TRUE, yes
-    overcast, 81, 75, FALSE, yes
-    rainy, 71, 91, TRUE, no
-    """
-    tbl = Table()
-    tbl.read(s)
-    tbl.dump()
+class NB:
+    def __init__(self):
+        self.m = 0
+        self.k = 0
+        self.n = -1
+        self.tbl = Table()
+        self.things = {}
 
-    # test Entropy
-    ent = Sym('',0,1)
-    file = open("output1.txt", 'w+')
-    file.write("entropy of test string is: {}".format(ent.test_entropy('aaaabbc')))
-    file.close()
+    def NBTrain(self, r, lst):
+        if r>1:
+            self.n += 1
+            cls = lst[self.tbl]
+            self.NBEnsureClassExist(cls)
+
+    def NBEnsureClassExist(self, cls):
+        if cls not in self.things:
+            self.things[cls] = self.tbl()
+
+    def NBClassify(self, r, lst):
+        most = -10**64
+        guess = ""
+        for cls in self.things:
+            guess = cls if guess == "" else guess
+            like = self.bayestheorem(lst, self.n, len(self.things), self.things[cls], cls)
+            if like>most:
+                most = like
+                guess = cls
+        return guess
+
+    def bayestheorem(self, lst, nall, nthings, thing, cls):
+        n1 = self.tbl.cols[nall-1].cnt[cls]
+        like = prior = (n1 + self.k)/(nall + self.k * nthings)
+        like = math.log10(like)
+        for c in thing.xs:
+            x = lst[c]
+            if x == '\n': continue
+            if c in thing.nums:
+                like += math.log10(thing.col[c].num_like(x))
+            else:
+                like += math.log10(thing.col[c].sym_like(x, prior, self.m))
+        return like
