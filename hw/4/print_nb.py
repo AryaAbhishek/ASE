@@ -1,7 +1,6 @@
 from hw4 import Table, NB, ABCD, fromString
 import csv
 if __name__ == "__main__":
-    t_count = 4
     file = ""
     with open('weathernon.csv','r') as lines:
         reader = csv.reader(lines, delimiter=' ', quotechar='|')
@@ -12,19 +11,19 @@ if __name__ == "__main__":
     nb = NB()
     ab = ABCD()
     lines = fromString(file)
-    train_count = 3
+    train_count = 4
     for i, row in enumerate(lines):
         if i == 0:
             nb.NBTrain(i, row)
         else:
-            if i-1 < train_count:
+            if i < train_count:
                 nb.NBTrain(i, row)
             else:
                 classify = nb.NBClassify(i, row)
                 ab.ABCD1(row[-1], classify)
                 nb.NBTrain(i, row)
     file1 = open("output2.txt", 'w+')
-    file1.write("#--- Zeror -------------------------\n")
+    file1.write("#--- nbok -------------------------\n")
     file1.write("weathornon \n")
     string = ab.ABCD_report()
     for s in string:
@@ -40,12 +39,12 @@ if __name__ == "__main__":
     nb = NB()
     ab = ABCD()
     lines = fromString(file)
-    train_count = 3
+    train_count = 4
     for i, row in enumerate(lines):
         if i == 0:
             nb.NBTrain(i, row)
         else:
-            if i - 1 < train_count:
+            if i < train_count:
                 nb.NBTrain(i, row)
             else:
                 classify = nb.NBClassify(i, row)

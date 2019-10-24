@@ -1,7 +1,6 @@
 from hw4 import Table, ZeroR, ABCD, fromString
 import csv
 if __name__ == "__main__":
-    t_count = 3
     file = ""
     with open('weathernon.csv','r') as lines:
         reader = csv.reader(lines, delimiter=' ', quotechar='|')
@@ -17,11 +16,12 @@ if __name__ == "__main__":
         if i == 0:
             zr.train(i, row)
         else:
-            if i-1<train_count:
+            if i<train_count:
                 zr.train(i, row)
             else:
                 classify = zr.classify(i, row)
-                ab.ABCD1(row[-1], classify)
+                # print(row[-1], classify)
+                ab.ABCD1(row[-1],classify)
                 zr.train(i, row)
     file1 = open("output1.txt", 'w+')
     file1.write("#--- Zeror -------------------------\n")
@@ -45,10 +45,11 @@ if __name__ == "__main__":
         if i == 0:
             zr.train(i, row)
         else:
-            if i - 1 < train_count:
+            if i < train_count:
                 zr.train(i, row)
             else:
                 classify = zr.classify(i, row)
+                # print(classify, row[-1])
                 ab.ABCD1(row[-1], classify)
                 zr.train(i, row)
     file1.write("\n diabetes \n")
