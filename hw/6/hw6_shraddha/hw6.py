@@ -467,5 +467,3 @@ if __name__ == "__main__":
     report.ABCD1("maybe", "no")
     report.ABCD_report()
     tbl.readCsvFile('diabetes.csv')
-    # obj = Tree()
-    # obj.readCsvFile('diabetes.csv')
