@@ -33,8 +33,21 @@ def num(i):
 def xnum():
     return [num(one) for one in x()]
 
+file = open("output3.txt", 'w+')
 imp = xnum()
-div1 = Div(imp[0], imp[1], "num")
-
+# xlst, ylst = [], []
+# for i in imp:
+#     xlst.append(i[0])
+#     ylst.append(i[1])
+div1 = Div(imp, "num")
+file.write("Div1\n")
+file.write(div1.splits)
 imp = xsym()
-div1 = Div(imp[0], imp[1], "sym")
+# xlst, ylst = [], []
+# for i in imp:
+#     xlst.append(i[0])
+#     ylst.append(i[1])
+div1 = Div(imp, "sym")
+file.write("\nDiv2\n")
+file.write(div1.splits)
+file.close()

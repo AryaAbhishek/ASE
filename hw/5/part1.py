@@ -2,7 +2,7 @@ from Div1 import Div
 import random
 if __name__ == "__main__":
     # Part1
-
+    file = open("output1.txt", "w+")
     r = random.random
     seed = random.seed
     n = 5
@@ -23,4 +23,11 @@ if __name__ == "__main__":
         return [num(one) for one in x()]
 
     imp = xnum()
-    div1 = Div(imp[0], imp[1], "num")
+    # xlst, ylst = [], []
+    # for i in imp:
+    #     xlst.append(i[0])
+    #     ylst.append(i[1])
+    # div1 = Div(xlst, ylst, "num")
+    div1 = Div(imp, "num")
+    file.write(div1.splits)
+    file.close()

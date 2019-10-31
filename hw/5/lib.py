@@ -1,12 +1,5 @@
-#!/usr/bin/env python3
-# vim: sta:et:sw=2:ts=2:sts=2
-"""
-Misc standard Python tricks
-"""
-
 import random,sys,re,os
-
-char = {'skip':'?'}
+from the import *
 
 # -------------------------------------------------
 # standard shortcuts
@@ -14,20 +7,20 @@ char = {'skip':'?'}
 r    = random.random
 seed = random.seed
 isa  = isinstance
-def first(l):
-  "first in a list"
+def first(l): 
+  "first in a list"    
   return l[0]
 
-def last(l):
-  "last in a list"
+def last(l):  
+  "last in a list"     
   return l[-1]
 
-def isNum(x):
-  "checks for numbers"
+def isNum(x): 
+  "checks for numbers" 
   return isa(x,(float,int))
 
-def same(x):
- "do nothing"
+def same(x):  
+ "do nothing"         
  return x
 
 # -------------------------------------------------
@@ -45,7 +38,7 @@ def atom(x):
 
 def ordered(lst,key=same):
   "Sort things, but ignore any 'THE.char.skip' entries."
-  return sorted([x for x in lst if key(x) != char['skip']])
+  return sorted([x for x in lst if key(x) != THE.char.skip])
 
 # -------------------------------------------------
 # some convenient iterators
@@ -78,27 +71,27 @@ def now(t,m):
     sys.exit()
 
 # -------------------------------------------------
-# # cli tricks
-#
-# def cli():
-#   "Allow command lines args to update fields in the THE object"
-#   args   = [thing(x) for x in sys.argv[1:]]
-#   what   = {}
-#   groups = THE.d()
-#   while args:
-#     arg = args.pop(0)
-#     if arg in groups:
-#       what = groups[arg].d()
-#     else:
-#       now(isa(arg,str) and arg[0] == "-", "bad flag '%s'" %arg)
-#       arg = arg[1:]
-#       now(arg in what, "%s not one of %s" % (arg,list(what.keys())))
-#       old = what[arg]
-#       if isa(old, bool):
-#         what[arg] = not what[arg]
-#       else:
-#         val = args.pop(0)
-#         now(type(old) == type(val),
-#              "'%s' value not of type '%s'" % (arg,type(old)))
-#         what[arg] = val
-#   return THE
+# cli tricks
+
+def cli():
+  "Allow command lines args to update fields in the THE object" 
+  args   = [thing(x) for x in sys.argv[1:]]
+  what   = {}
+  groups = THE.d()
+  while args:
+    arg = args.pop(0)
+    if arg in groups:
+      what = groups[arg].d()
+    else:
+      now(isa(arg,str) and arg[0] == "-", "bad flag '%s'" %arg)
+      arg = arg[1:]
+      now(arg in what, "%s not one of %s" % (arg,list(what.keys())))
+      old = what[arg]
+      if isa(old, bool):
+        what[arg] = not what[arg]
+      else:
+        val = args.pop(0)
+        now(type(old) == type(val), 
+             "'%s' value not of type '%s'" % (arg,type(old)))
+        what[arg] = val
+  return THE   

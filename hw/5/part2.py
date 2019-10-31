@@ -20,5 +20,14 @@ def x():
           [0.6 + r()*0.05 for _ in range(n)] +    \
           [0.8 + r()*0.05 for _ in range(n)]
 
+
+file = open("output2.txt","w+")
 imp = xsym()
-div1 = Div(imp[0], imp[1], "sym")
+# xlst, ylst = [], []
+# for i in imp:
+#     xlst.append(i[0])
+#     ylst.append(i[1])
+# div1 = Div(xlst, ylst, "sym")
+div1 = Div(imp, "sym")
+file.write(div1.splits)
+file.close()
