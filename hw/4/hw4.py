@@ -126,7 +126,7 @@ class Num(Col):
 
     def num_like(self, x):
         var = self.sd**2
-        denom = (3.14159*2(var))**0.5
+        denom = (3.14159*2*var)**0.5
         num = 2.71828**(-(x-self.mu)**2/(2*var+0.0001))
         return num/(denom + 10**-64)
 
@@ -144,13 +144,13 @@ class ABCD:
 
     def ABCD1(self, want, got):
         if want not in self.known:
-            print("want",want)
+            # print("want",want)
             self.known[want] = 1
             self.a[want] = self.yes + self.no
         else:
             self.known[want] += 1
         if got not in self.known:
-            print("got", got)
+            # print("got", got)
             self.known[got] = 1
             self.a[want] = self.yes + self.no
         if want == got:
@@ -219,7 +219,7 @@ class Sym(Col):
         self.n += 1
         self.cnt[v] += 1
         tmp = self.cnt[v]
-        print(v, tmp)
+        # print(v, tmp)
         if tmp > self.most:
             self.most = tmp
             self.mode = v
@@ -255,7 +255,7 @@ class Table:
 
     def read_lines(self,i, row):
         if i == 0:
-            print(row)
+            # print(row)
             self.col_len = len(row)
             for j in range(len(row)):
                 if '?' not in row[j]:
@@ -387,6 +387,7 @@ class NB:
             for i in self.tbl.index:
                 self.index.append(i)
                 self.header.append(row[i])
+            # print(self.header, self.index)
         else:
             self.tbl.read_lines(r, row)
             cls = row[-1]
@@ -411,14 +412,15 @@ class NB:
         return guess
 
     def bayestheorem(self, row, nall, nthings, thing, cls):
-        n1 = self.tbl.cols[len(row)-1][0].cnt[cls]
+        # n1 = self.tbl.cols[len(row)-1][0].cnt[cls]
+        n1 = len(thing.rows)
         like = prior = (n1 + self.k)/(nall + self.k * nthings)
-        like = math.log10(like)
+        like = log(like)
         for c in thing.xs:
             x = row[c]
             if x == '\n': continue
             if c in thing.nums:
-                like += math.log10(thing.col[c][0].num_like(x))
+                like += log(thing.col[c][0].num_like(x))
             else:
-                like += math.log10(thing.col[c][0].sym_like(x, prior, self.m))
+                like += log(thing.col[c][0].sym_like(x, prior, self.m))
         return like
