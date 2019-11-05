@@ -55,9 +55,9 @@ def printTree(root):
         for col in root.leaves:
             print(col.column_name + " = ")
             if isinstance(col, Num):
-                print("{0} ({1})".format(col.mu, col.sd))
+                print("{0} {1}".format(col.mu, col.sd))
             else:
-                print("{0} ({1})".format(col.mode, col.entropy))
+                print("{0} {1}".format(col.mode, col.entropy))
 
 
 class hw7:
