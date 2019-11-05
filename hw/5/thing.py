@@ -14,16 +14,16 @@ class Col:
         return self.n / n * self.variety() + j.n / n * j.variety()
 
     def __add__(self, x):
-        y = self.key(x)
-        if y != '?':
-            self.n += 1
+        # y = self.key(x)
+        if x != '?':
+            # self.n += 1
             self.add(x)
         return x
 
     def __sub__(self, x):
-        y = self.key(x)
-        if y != '?':
-            self.n -= 1
+        # y = self.key(x)
+        if x != '?':
+            # self.n -= 1
             self.sub(x)
         return x
 
@@ -48,7 +48,7 @@ class Num(Col):
         [self + x for x in inits]
 
     def add(self, a):  # get the new number and update mu, sd, lo, hi, m2
-        a = self.key(a)
+        # a = self.key(a)
         self.col.append(a)
         self.n += 1
         if self.lo > a:
@@ -71,14 +71,14 @@ class Num(Col):
             return 0
         return self.m2/(self.n-1)**0.5
 
-    def num_mean(self):  # returns mean of numbers
+    def mean(self):  # returns mean of numbers
         return self.mu
 
     def num_norm(self, c):  # not used in this assignment
         return (c-self.lo)/(self.hi-self.lo + 10**-32)
 
     def sub(self, b):  # get new number and update the mu, m2 and sd by removing value the was added by the number
-        b = self.key(b)
+        # b = self.key(b)
         if self.n < 2:
             self.sd = 0
             return b
@@ -101,7 +101,7 @@ class Sym(Col):
         [self + x for x in inits]
 
     def add(self, v):
-        v = self.key(v)
+        # v = self.key(v)
         self.n += 1
         self.cnt[v] += 1
         tmp = self.cnt[v]
@@ -113,12 +113,16 @@ class Sym(Col):
     def sym_ent(self):
         p = e = 0
         for k in self.cnt:
-            p = self.cnt[k]/self.n
+            p = self.cnt[k]/self.n + 10**-64
+            print("\nvalue of p: {0}\n".format(p))
             e -= p*math.log10(p)/math.log10(2)
         return e
 
+    def mean(self):
+        return self.mode
+
     def sub(self, x):
-        x = self.key(x)
+        # x = self.key(x)
         old = self.cnt.get(x, 0)
         if old > 0:
             self.cnt[x] = old - 1
