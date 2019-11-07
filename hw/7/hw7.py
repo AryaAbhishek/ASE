@@ -9,11 +9,13 @@ import csv
 def distance(i, j, cols):
     d = n = 0
     p = 2
+    # print(cols)
     for col in cols:
-        n = n + 1
+        n += 1
         d0 = col.dist(i.cells[col.pos], j.cells[col.pos])
-        d = d +(d0 ** p)
+        d += (d0 ** p)
         # normalize distance
+    # print(p, n)
     return d ** (1 / p) / n ** (1 / p)
 
 
@@ -75,6 +77,7 @@ class hw7:
 
     def parse(self):
         for i, row in enumerate(self.content):
+            row = [x for x in row if x != ""]
             self.table.read_lines(i, row)
 
     def splitPoint(self, table, level):
@@ -105,10 +108,11 @@ class hw7:
             return treeNode
 
     def fastMap(self, table):
+        # print("table.xs", table.xs)
         cols = [table.cols[col] for col in table.xs]
-        print(table.rows)
-        print(len(table.cols))
-        print(len(table.rows))
+        # print(table.rows)
+        # print(len(table.cols))
+        # print(len(table.rows))
         randPoint = random.randint(0, len(table.rows)-1)
         pivot1 = []
         pivot2 = []
@@ -137,7 +141,7 @@ class hw7:
             completeList = []
             cnt -= 1
             PivotTuple = self.fastMap(table)
-
+            # print(table.xs)
             cols = [table.cols[col] for col in table.xs]
             for row in range(0, len(table.rows)):
                 dist = cosine_distance(table.rows[PivotTuple[0]], table.rows[PivotTuple[1]], table.rows[row], cols, PivotTuple[2])
@@ -167,8 +171,8 @@ class hw7:
 
 
 if __name__ == '__main__':
-    # hw = 'pom310000.csv'
-    hw = 'xomo10000.csv'
+    hw = 'pom310000.csv'
+    # hw = 'xomo10000.csv'
     file = ""
     with open(hw, 'r') as lines:
         reader = csv.reader(lines, delimiter=' ', quotechar='|')

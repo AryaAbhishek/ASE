@@ -272,6 +272,7 @@ class Table:
         self.syms = []
 
     def read_lines(self,i, row):
+        # print(row)
         if i == 0:
             # print(row)
             self.col_len = len(row)
@@ -280,6 +281,8 @@ class Table:
                     self.index.append(j)
                     if re.search(r"[<>!]", row[j]):
                         self.goals.append(j + 1)
+                    else:
+                        self.xs.append(j + 1)
                     if re.search(r"[<>$]", row[j]):
                         self.nums.append(j + 1)
                         if re.search(r"[<]", row[j]):
@@ -288,7 +291,7 @@ class Table:
                             self.cols.append(Num(row[j], j, row[j]))
                     else:
                         self.syms.append(j + 1)
-                        self.xs.append(j + 1)
+                        # self.xs.append(j + 1)
                         self.cols.append(Sym(row[j], j, 1))
         else:
             if len(row) != self.col_len:
@@ -302,39 +305,39 @@ class Table:
                     self.cols[j].add(row[j])
             self.rows.append(Row(row))
 
-    def read(self, lines):
-        tbl = fromString(lines)
-        for i, row in enumerate(tbl):
-            if i == 0:
-                self.col_len = len(row)
-                for j in range(len(row)):
-                    if '?' not in row[j]:
-                        self.index.append(j)
-                        if re.search(r"[<>!]", row[j]):
-                            self.goals.append(j+1)
-                        if re.search(r"[<>$]", row[j]):
-                            self.nums.append(j+1)
-                            if re.search(r"[<]", row[j]):
-                                self.cols.append([Num(row[j],j, row[j]), self.oid])
-                            else:
-                                self.cols.append([Num(row[j], j, row[j]), self.oid])
-                        else:
-                            self.syms.append(j+1)
-                            self.xs.append(j+1)
-                            self.cols.append([Sym(row[j], j, 1),self.oid])
-                        self.oid += 1
-            else:
-                if len(row) != self.col_len:
-                    row = "E> skipping line"
-                if "E> skipping line" not in row:
-                    tmp = len(row) - 1
-                    for j in range(tmp, -1, -1):
-                        if j not in self.index:
-                            del row[j]
-                    for j in range(len(self.cols)):
-                        self.cols[j][0].add(row[j])
-                self.rows.append([Row(row), self.oid])
-                self.oid += 1
+    # def read(self, lines):
+    #     tbl = fromString(lines)
+    #     for i, row in enumerate(tbl):
+    #         if i == 0:
+    #             self.col_len = len(row)
+    #             for j in range(len(row)):
+    #                 if '?' not in row[j]:
+    #                     self.index.append(j)
+    #                     if re.search(r"[<>!]", row[j]):
+    #                         self.goals.append(j+1)
+    #                     if re.search(r"[<>$]", row[j]):
+    #                         self.nums.append(j+1)
+    #                         if re.search(r"[<]", row[j]):
+    #                             self.cols.append([Num(row[j],j, row[j]), self.oid])
+    #                         else:
+    #                             self.cols.append([Num(row[j], j, row[j]), self.oid])
+    #                     else:
+    #                         self.syms.append(j+1)
+    #                         self.xs.append(j+1)
+    #                         self.cols.append([Sym(row[j], j, 1),self.oid])
+    #                     self.oid += 1
+    #         else:
+    #             if len(row) != self.col_len:
+    #                 row = "E> skipping line"
+    #             if "E> skipping line" not in row:
+    #                 tmp = len(row) - 1
+    #                 for j in range(tmp, -1, -1):
+    #                     if j not in self.index:
+    #                         del row[j]
+    #                 for j in range(len(self.cols)):
+    #                     self.cols[j][0].add(row[j])
+    #             self.rows.append([Row(row), self.oid])
+    #             self.oid += 1
 
     def dump(self):
         file = open("output2.txt", "w+")
