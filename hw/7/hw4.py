@@ -1,7 +1,5 @@
 import re
-import operator
 import math
-import csv
 from math import log
 from collections import defaultdict
 
@@ -66,8 +64,8 @@ class Col:
     # initialize n - total numbers used to find mean and SD
     def __init__(self, col_name, pos, text):
         self.n = 0
-        self.col_name = pos
-        self.pos = col_name
+        self.col_name = col_name
+        self.pos = pos
         self.text = text
 
 
@@ -126,9 +124,24 @@ class Num(Col):
 
     def num_like(self, x):
         var = self.sd**2
-        denom = (3.14159*2(var))**0.5
+        denom = (3.14159*2*var)**0.5
         num = 2.71828**(-(x-self.mu)**2/(2*var+0.0001))
         return num/(denom + 10**-64)
+
+    def dist(self, x, y):
+        norm = lambda z: (z - self.lo) / (self.hi - self.lo + 10 ** -32)
+        no = "?"
+        if x is no:
+            if y is no: return 1
+            y = norm(y)
+            x = 0 if y > .5 else 1
+        else:
+            x = norm(x)
+            if y is no:
+                y = 0 if x > .5 else 1
+            else:
+                y = norm(y)
+        return abs(x - y)
 
 
 class ABCD:
@@ -144,13 +157,13 @@ class ABCD:
 
     def ABCD1(self, want, got):
         if want not in self.known:
-            print("want",want)
+            # print("want",want)
             self.known[want] = 1
             self.a[want] = self.yes + self.no
         else:
             self.known[want] += 1
         if got not in self.known:
-            print("got", got)
+            # print("got", got)
             self.known[got] = 1
             self.a[want] = self.yes + self.no
         if want == got:
@@ -219,7 +232,7 @@ class Sym(Col):
         self.n += 1
         self.cnt[v] += 1
         tmp = self.cnt[v]
-        print(v, tmp)
+        # print(v, tmp)
         if tmp > self.most:
             self.most = tmp
             self.mode = v
@@ -241,9 +254,14 @@ class Sym(Col):
         f = 0 if x not in self.cnt else self.cnt[x]
         return (f + m * prior)/(self.n + m)
 
+    def dist(self, x, y):
+        no = "?"
+        if x is no and y is no: return 1
+        if x != y: return 1
+        return 0
+
 class Table:
     def __init__(self):
-        self.oid = 1
         self.index = []
         self.col_len = 0
         self.rows = []
@@ -255,7 +273,7 @@ class Table:
 
     def read_lines(self,i, row):
         if i == 0:
-            print(row)
+            # print(row)
             self.col_len = len(row)
             for j in range(len(row)):
                 if '?' not in row[j]:
@@ -265,14 +283,13 @@ class Table:
                     if re.search(r"[<>$]", row[j]):
                         self.nums.append(j + 1)
                         if re.search(r"[<]", row[j]):
-                            self.cols.append([Num(row[j], j, row[j]), self.oid])
+                            self.cols.append(Num(row[j], j, row[j]))
                         else:
-                            self.cols.append([Num(row[j], j, row[j]), self.oid])
+                            self.cols.append(Num(row[j], j, row[j]))
                     else:
                         self.syms.append(j + 1)
                         self.xs.append(j + 1)
-                        self.cols.append([Sym(row[j], j, 1), self.oid])
-                    self.oid += 1
+                        self.cols.append(Sym(row[j], j, 1))
         else:
             if len(row) != self.col_len:
                 row = "E> skipping line"
@@ -282,9 +299,8 @@ class Table:
                     if j not in self.index:
                         del row[j]
                 for j in range(len(self.cols)):
-                    self.cols[j][0].add(row[j])
-            self.rows.append([Row(row), self.oid])
-            self.oid += 1
+                    self.cols[j].add(row[j])
+            self.rows.append(Row(row))
 
     def read(self, lines):
         tbl = fromString(lines)
@@ -387,6 +403,7 @@ class NB:
             for i in self.tbl.index:
                 self.index.append(i)
                 self.header.append(row[i])
+            # print(self.header, self.index)
         else:
             self.tbl.read_lines(r, row)
             cls = row[-1]
@@ -411,14 +428,15 @@ class NB:
         return guess
 
     def bayestheorem(self, row, nall, nthings, thing, cls):
-        n1 = self.tbl.cols[len(row)-1][0].cnt[cls]
+        # n1 = self.tbl.cols[len(row)-1][0].cnt[cls]
+        n1 = len(thing.rows)
         like = prior = (n1 + self.k)/(nall + self.k * nthings)
-        like = math.log10(like)
+        like = log(like)
         for c in thing.xs:
             x = row[c]
             if x == '\n': continue
             if c in thing.nums:
-                like += math.log10(thing.col[c][0].num_like(x))
+                like += log(thing.col[c][0].num_like(x))
             else:
-                like += math.log10(thing.col[c][0].sym_like(x, prior, self.m))
+                like += log(thing.col[c][0].sym_like(x, prior, self.m))
         return like

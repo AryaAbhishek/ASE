@@ -1,6 +1,7 @@
 import random, math
-from hw4 import Num, Table, cells, rows, file
+from hw4 import Num, Table, cells, rows, file, fromString
 seed = random.seed
+import csv
 
 # Build a distance function that reports the distance between two rows:
 
@@ -33,54 +34,54 @@ class RandomProjectionTree:
 
 
 def printTree(root):
-    if  root.isRoot != True:
+    temp = ""
+    if not root.isItRoot:
         for i in range(root.level):
-            print("|. ")
-
-    print(root.splitCount)
+            temp += "|. "
+    print(temp + str(root.splitCnt))
+    temp = ""
     if len(root.children) == 0:
         for j in range(root.level - 1):
-            print("|. ")
+            temp += "|. "
         for col in root.leaves:
-            print(col.column_name + " = ")
+            temp += col.col_name + " = "
             if isinstance(col, Num):
-                print("{0} {1}".format(col.mu, col.sd))
+                temp += "{0} {1}".format(col.mu, col.sd)
             else:
-                print("{0} {1}".format(col.mode, col.entropy))
-        print("\n")
+                temp += "{0} {1}".format(col.mode, col.sym_ent())
+        print(temp)
     else:
         for each in root.children:
             printTree(each)
-    if root.isRoot:
+    temp = ""
+    if root.isItRoot:
         for col in root.leaves:
-            print(col.column_name + " = ")
+            temp += col.column_name + " = "
             if isinstance(col, Num):
-                print("{0} ({1})".format(col.mu, col.sd))
+                temp += "{0} {1}".format(col.mu, col.sd)
             else:
-                print("{0} ({1})".format(col.mode, col.entropy))
+                temp += "{0} {1}".format(col.mode, col.sym_ent())
+        print(temp)
 
 
 class hw7:
-    def __init__(self, file_name):
+    def __init__(self, lines):
         seed(1)
         self.table = Table()
-        self.content = cells(rows(file(file_name)))
-        self.tree = self.splitPoint(self.table, 0)
+        self.content = lines
         self.parse()
+        self.tree = self.splitPoint(self.table, 0)
         printTree(self.tree)
 
     def parse(self):
         for i, row in enumerate(self.content):
-            if i != 0:
-                self.table.addRow(row)
-            else:
-                self.table.addCol(row)
+            self.table.read_lines(i, row)
 
     def splitPoint(self, table, level):
         treeNode = RandomProjectionTree()
         if len(table.rows) < 2 * pow(len(self.table.rows), 1 / 2):
             for each in table.goals:
-                treeNode.leaves.append(table.cols[each])
+                treeNode.leaves.append(table.cols[each-1])
             treeNode.splitCnt = len(table.rows)
             treeNode.level = level
             return treeNode
@@ -89,13 +90,13 @@ class hw7:
             leftOfTable = Table()
             rightOfTable = Table()
 
-            leftOfTable.read([col.col_name for col in table.cols])
-            rightOfTable.read([col.column_name for col in table.cols])
+            leftOfTable.read_lines(0, [col.col_name for col in table.cols])
+            rightOfTable.read_lines(0, [col.col_name for col in table.cols])
             for i, each in enumerate(table.rows):
                 if i in best_points:
-                    rightOfTable.addRow(each.cells)
+                    rightOfTable.read_lines(i+1, each.cells)
                 else:
-                    leftOfTable.addRow(each.cells)
+                    leftOfTable.read_lines(i+1, each.cells)
             splitCount = len(leftOfTable.rows) + len(rightOfTable.rows)
             treeNode.children.append(self.splitPoint(leftOfTable, level + 1))
             treeNode.children.append(self.splitPoint(rightOfTable, level + 1))
@@ -139,7 +140,7 @@ class hw7:
 
             cols = [table.cols[col] for col in table.xs]
             for row in range(0, len(table.rows)):
-                dist = cosine_distance(table.rows[PivotTuple[0]], table.rows[PivotTuple[1]], table.rows[row], PivotTuple[2], cols)
+                dist = cosine_distance(table.rows[PivotTuple[0]], table.rows[PivotTuple[1]], table.rows[row], cols, PivotTuple[2])
                 completeList.append((row, dist))
             completeList.sort(key=lambda x: x[1])
 
@@ -150,21 +151,29 @@ class hw7:
             else:
                 mDist = completeList[idx][1]
 
-            pt = set()
+            pt1 = set()
             for pt in completeList:
                 if  mDist < pt[1]:
-                    pt.add(pt[0])
+                    pt1.add(pt[0])
 
-            right = abs((listLen - len(pt))- len(pt))
+            right = abs((listLen - len(pt1))- len(pt1))
 
             if start > right:
                 start = right
                 maxTuple = PivotTuple
-                maxPoints = pt
+                maxPoints = pt1
 
         return maxTuple, maxPoints
 
 
 if __name__ == '__main__':
-    hw7 = hw7('pom310000.csv')
-    #hw7 = hw7('xomo10000.csv')
+    # hw = 'pom310000.csv'
+    hw = 'xomo10000.csv'
+    file = ""
+    with open(hw, 'r') as lines:
+        reader = csv.reader(lines, delimiter=' ', quotechar='|')
+        for row in reader:
+            file += ','.join(row)
+            file += '\n'
+    lines = fromString(file)
+    hw7(lines)
