@@ -26,21 +26,21 @@ def cosine_distance(x, y, z, cols, dist):
     return (distance(x, z, cols) ** 2 + dist ** 2 - distance(y, z, cols) ** 2) / (2 * dist)
 
 
-class RandomProjectionTree:
+class random_projection_tree:
     def __init__(self):
         self.leaves = []
         self.children = []
         self.level = 0
-        self.splitCnt = 0
-        self.isItRoot = False
+        self.split_count = 0
+        self.is_root = False
 
 
-def printTree(root):
+def print_tree(root):
     temp = ""
-    if not root.isItRoot:
+    if not root.is_root:
         for i in range(root.level):
             temp += "|. "
-    print(temp + str(root.splitCnt))
+    print(temp + str(root.split_count))
     temp = ""
     if len(root.children) == 0:
         for j in range(root.level - 1):
@@ -54,11 +54,11 @@ def printTree(root):
         print(temp)
     else:
         for each in root.children:
-            printTree(each)
+            print_tree(each)
     temp = ""
-    if root.isItRoot:
+    if root.is_root:
         for col in root.leaves:
-            temp += col.column_name + " = "
+            temp += col.col_name + " = "
             if isinstance(col, Num):
                 temp += "{0} {1}".format(col.mu, col.sd)
             else:
@@ -70,109 +70,108 @@ class hw7:
     def __init__(self, lines):
         seed(1)
         self.table = Table()
-        self.content = lines
-        self.parse()
-        self.tree = self.splitPoint(self.table, 0)
-        printTree(self.tree)
+        self.lines = lines
+        self.parse_lines()
+        self.tree = self.split_point(self.table, 0)
+        print_tree(self.tree)
 
-    def parse(self):
-        for i, row in enumerate(self.content):
+    def parse_lines(self):
+        # print("hello")
+        for i, row in enumerate(self.lines):
             row = [x for x in row if x != ""]
             self.table.read_lines(i, row)
 
-    def splitPoint(self, table, level):
-        treeNode = RandomProjectionTree()
+    def split_point(self, table, level):
+        # print("hello split")
+        node = random_projection_tree()
         if len(table.rows) < 2 * pow(len(self.table.rows), 1 / 2):
             for each in table.goals:
-                treeNode.leaves.append(table.cols[each-1])
-            treeNode.splitCnt = len(table.rows)
-            treeNode.level = level
-            return treeNode
+                node.leaves.append(table.cols[each-1])
+            node.split_count = len(table.rows)
+            node.level = level
+            return node
         else:
-            best_tuple, best_points = self.maxPivotPoints(table)
-            leftOfTable = Table()
-            rightOfTable = Table()
-
-            leftOfTable.read_lines(0, [col.col_name for col in table.cols])
-            rightOfTable.read_lines(0, [col.col_name for col in table.cols])
+            _, best_points = self.best_pivot_points(table)
+            left_table, right_table = Table(), Table()
+            left_table.read_lines(0, [col.col_name for col in table.cols])
+            right_table.read_lines(0, [col.col_name for col in table.cols])
             for i, each in enumerate(table.rows):
                 if i in best_points:
-                    rightOfTable.read_lines(i+1, each.cells)
+                    right_table.read_lines(i+1, each.cells)
                 else:
-                    leftOfTable.read_lines(i+1, each.cells)
-            splitCount = len(leftOfTable.rows) + len(rightOfTable.rows)
-            treeNode.children.append(self.splitPoint(leftOfTable, level + 1))
-            treeNode.children.append(self.splitPoint(rightOfTable, level + 1))
-            treeNode.splitCnt = splitCount
-            treeNode.level = level
-            return treeNode
+                    left_table.read_lines(i+1, each.cells)
+            split_count = len(left_table.rows) + len(right_table.rows)
+            node.children.append(self.split_point(left_table, level + 1))
+            node.children.append(self.split_point(right_table, level + 1))
+            node.split_count = split_count
+            node.level = level
+            return node
 
-    def fastMap(self, table):
-        # print("table.xs", table.xs)
+    def fast_map(self, table):
+        # print("fast_map")
         cols = [table.cols[col] for col in table.xs]
         # print(table.rows)
         # print(len(table.cols))
         # print(len(table.rows))
-        randPoint = random.randint(0, len(table.rows)-1)
-        pivot1 = []
-        pivot2 = []
+        random_point = random.randint(0, len(table.rows)-1)
+        pivot1, pivot2 = [], []
         for row in range(0, len(table.rows)):
-            dist = distance(table.rows[randPoint], table.rows[row], cols)
+            dist = distance(table.rows[random_point], table.rows[row], cols)
             pivot1.append((row, dist))
         pivot1.sort(key=lambda x: x[1])
-        pivot1_Idx = pivot1[math.floor(len(pivot1) * 0.9)][0]
+        pivot1_index = pivot1[math.floor(len(pivot1) * 0.9)][0]
 
         for row in range(0, len(table.rows)):
-            dist = distance(table.rows[pivot1_Idx], table.rows[row], cols)
+            dist = distance(table.rows[pivot1_index], table.rows[row], cols)
             pivot2.append((row, dist))
 
         pivot2.sort(key=lambda x: x[1])
         dist = pivot2[math.floor(len(pivot2) * 0.9)][1]
-        pivot2_Idx = pivot2[math.floor(len(pivot2) * 0.9)][0]
-        return pivot1_Idx, pivot2_Idx, dist
+        pivot2_Index = pivot2[math.floor(len(pivot2) * 0.9)][0]
+        return pivot1_index, pivot2_Index, dist
 
-    def maxPivotPoints(self, table):
-        cnt = 10
+    def best_pivot_points(self, table):
+        # print("best_pivot")
+        count = 10
         start = len(table.rows)
         # left_split, right_split = 0, 0
-        maxTuple = None
-        maxPoints = None
-        while cnt > 0:
-            completeList = []
-            cnt -= 1
-            PivotTuple = self.fastMap(table)
+        best_tuple, best_point = None, None
+        while count > 0:
+            final_list = []
+            count -= 1
+            pivot_tuple = self.fast_map(table)
             # print(table.xs)
             cols = [table.cols[col] for col in table.xs]
             for row in range(0, len(table.rows)):
-                dist = cosine_distance(table.rows[PivotTuple[0]], table.rows[PivotTuple[1]], table.rows[row], cols, PivotTuple[2])
-                completeList.append((row, dist))
-            completeList.sort(key=lambda x: x[1])
+                dist = cosine_distance(table.rows[pivot_tuple[0]], table.rows[pivot_tuple[1]], table.rows[row], cols, pivot_tuple[2])
+                final_list.append((row, dist))
+            final_list.sort(key=lambda x: x[1])
 
-            listLen = len(completeList)
-            idx = (listLen - 1) // 2
-            if listLen % 2 !=0 :
-                mDist = (completeList[idx + 1][1] + completeList[idx][1] ) / 2.0
+            list_length = len(final_list)
+            index = (list_length - 1) // 2
+            if list_length % 2 !=0:
+                mid_dist = (final_list[index + 1][1] + final_list[index][1] ) / 2.0
             else:
-                mDist = completeList[idx][1]
+                mid_dist = final_list[index][1]
 
-            pt1 = set()
-            for pt in completeList:
-                if  mDist < pt[1]:
-                    pt1.add(pt[0])
+            point1 = set()
+            for point in final_list:
+                if  mid_dist < point[1]:
+                    point1.add(point[0])
 
-            right = abs((listLen - len(pt1))- len(pt1))
+            right = abs((list_length - len(point1))- len(point1))
 
             if start > right:
                 start = right
-                maxTuple = PivotTuple
-                maxPoints = pt1
+                best_tuple = pivot_tuple
+                best_point = point1
 
-        return maxTuple, maxPoints
+        return best_tuple, best_point
 
 
 if __name__ == '__main__':
-    hw = 'pom310000.csv'
-    # hw = 'xomo10000.csv'
+    # hw = 'pom310000.csv'
+    hw = 'xomo10000.csv'
     file = ""
     with open(hw, 'r') as lines:
         reader = csv.reader(lines, delimiter=' ', quotechar='|')
