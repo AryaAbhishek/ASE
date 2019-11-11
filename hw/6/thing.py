@@ -11,19 +11,15 @@ class Col:
 
     def xpect(self, j):
         n = self.n + j.n
-        return self.n / n * self.variety() + j.n / n * j.variety()
+        return (self.n / n) * self.variety() + (j.n / n) * j.variety()
 
     def __add__(self, x):
-        # y = self.key(x)
         if x != '?':
-            # self.n += 1
             self.add(x)
         return x
 
     def __sub__(self, x):
-        # y = self.key(x)
         if x != '?':
-            # self.n -= 1
             self.sub(x)
         return x
 
@@ -48,7 +44,8 @@ class Num(Col):
         [self + x for x in inits]
 
     def add(self, a):  # get the new number and update mu, sd, lo, hi, m2
-        # a = self.key(a)
+        if a == '?':
+            a = 0
         self.col.append(a)
         self.n += 1
         if self.lo > a:
@@ -69,7 +66,7 @@ class Num(Col):
             return 0
         if self.n < 2:
             return 0
-        return self.m2/(self.n-1)**0.5
+        return (self.m2/(self.n-1 + 10**-64))**0.5
 
     def mean(self):  # returns mean of numbers
         return self.mu
@@ -101,7 +98,6 @@ class Sym(Col):
         [self + x for x in inits]
 
     def add(self, v):
-        # v = self.key(v)
         self.n += 1
         self.cnt[v] += 1
         tmp = self.cnt[v]
@@ -114,7 +110,6 @@ class Sym(Col):
         p = e = 0
         for k in self.cnt:
             p = self.cnt[k]/self.n + 10**-64
-            # print("\nvalue of p: {0}\n".format(p))
             e -= p*math.log10(p)/math.log10(2)
         return e
 
@@ -122,10 +117,19 @@ class Sym(Col):
         return self.mode
 
     def sub(self, x):
-        # x = self.key(x)
-        old = self.cnt.get(x, 0)
-        if old > 0:
-            self.cnt[x] = old - 1
+        self.n -= 1
+        if x == self.mode:
+            self.cnt[x] -= 1
+            tempc = 0
+            tempcr = None
+            for each in self.cnt:
+                if self.cnt[each] > tempc:
+                    tempc = self.cnt[each]
+                    tempcr = each
+            self.mode = tempcr
+            self.most = tempc
+        else:
+            self.cnt[x] -= 1
 
     def variety(self):
         return self.sym_ent()

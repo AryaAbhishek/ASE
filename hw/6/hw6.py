@@ -7,7 +7,9 @@ import csv
 def leaf_result(val, n):
     if val == 'p':
         return {'val': "tested_positive", 'n': n}
-    return {'val': "tested_negative", 'n': n}
+    if val == 'n':
+        return {'val': "tested_negetive", 'n': n}
+    return {'val': val, 'n': n}
 
 
 def tree_result(l, h, n, text, childs):
@@ -22,15 +24,11 @@ def split(rows, cut, column):
 
 def tree():
     index = table.goals[0]-1
-    # print(index)
-    type = "sym" if index in table.syms else "num"
+    type = "sym" if index+1 in table.syms else "num"
     data = list(map(lambda row: row.cells, table.rows))
-    for row in data:
-        # print(row)
-        if row[index] == "tested_positive":
-            row[index] = 'p'
-        else:
-            row[index] = 'n'
+    if type == "sym":
+        for row in data:
+            row[index] = 'p' if row[index] == "tested_positive" else 'n'
     return get_tree(data, index, type, 0)
 
 
@@ -49,23 +47,21 @@ def get_tree(rows, index, type, level):
             temp = []
             for row in rows:
                 temp.append([row[col.pos], row[index]])
-            # print("temp", temp, "\ncol_type", col_types[index])
             x = Div(temp, col_types[index])
             cut1, low1 = x.cut, x.best
             if cut1 and low1:
                 if low1 < low:
                     cut, low, column = cut1, low1, col
-        if cut:
-            # func = lambda row: row.cells
-            return [tree_result(low, high, len(childs), column.col_name,
-                                get_tree(childs, index, type, level + 1)) for low, high, childs in
-                    split(rows, cut, column)]
+        if cut and cut >= 5: # limit for auto.csv
+            return [tree_result(low, high, len(childs), column.col_name, get_tree(childs, index, type, level + 1))
+                    for low, high, childs in split(rows, cut, column)]
     return leaf_result(rows[len(rows) // 2][index], len(rows))
 
 
 def show(tree, level=0):
     for _ in range(level):
         print("| ", end=" ")
+    # print(tree)
     print("{0} = {1}...{2}".format(tree['text'], tree['low'], tree['high']), end=" ")
     if not isinstance(tree['childs'], list):
         print("{0} ({1})".format(tree['childs']['val'], tree['childs']['n']))
@@ -93,7 +89,6 @@ if __name__ == '__main__':
     table = Table()
     lines = fromString(file)
     parse_lines(lines)
-    print(table.rows)
     result = tree()
     for res in result:
         show(res)

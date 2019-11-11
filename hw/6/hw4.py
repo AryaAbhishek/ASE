@@ -90,8 +90,11 @@ class Num(Col):
         self.col = []
 
     def add(self, a):  # get the new number and update mu, sd, lo, hi, m2
+        if a == '?':
+            a = 0
         self.col.append(a)
         self.n += 1
+        # print(self.lo,a)
         if self.lo > a:
             self.lo = a
         if self.hi < a:
@@ -295,7 +298,7 @@ class Table:
                         self.syms.append(j + 1)
                         self.cols.append(Sym(row[j], j, 1))
         else:
-            if len(row) != self.col_len or "?" in row:
+            if len(row) != self.col_len:
                 row = "E> skipping line"
             if "E> skipping line" not in row:
                 tmp = len(row) - 1

@@ -45,6 +45,9 @@ def atom(x):
 
 def ordered(lst,key=same):
   "Sort things, but ignore any 'THE.char.skip' entries."
+  # for l in lst:
+    # if isinstance(l[0],str):
+      # print(l)
   return sorted([x for x in lst if key(x) != char['skip']])
 
 # -------------------------------------------------
