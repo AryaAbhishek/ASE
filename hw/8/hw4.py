@@ -66,11 +66,12 @@ def fromString(s):
 
 class Col:
     # initialize n - total numbers used to find mean and SD
-    def __init__(self, col_name, pos, text):
+    def __init__(self, col_name, pos, text, weight):
         self.n = 0
         self.col_name = col_name
         self.pos = pos
         self.text = text
+        self.weight = weight
 
 
 class Row:
@@ -82,8 +83,8 @@ class Row:
 
 class Num(Col):
     # lo - lowest number, hi - highest number, mu - mean, m2 - summation of square of differences from mean
-    def __init__(self, col_name, pos, text):
-        super().__init__(col_name, pos, text)
+    def __init__(self, col_name, pos, text, weight=1):
+        super().__init__(col_name, pos, text, weight)
         self.mu = self.m2 = self.sd = 0
         self.lo = 10**32
         self.hi = -1*self.lo
@@ -229,8 +230,8 @@ class ABCD:
         return string
 
 class Sym(Col):
-    def __init__(self, col_name, pos, text):
-        super().__init__(col_name, pos, text)
+    def __init__(self, col_name, pos, text, weight=1):
+        super().__init__(col_name, pos, text, weight)
         self.mode = ""
         self.most = 0
         self.cnt = defaultdict(int)
@@ -291,7 +292,7 @@ class Table:
                     if re.search(r"[<>$]", row[j]):
                         self.nums.append(j + 1)
                         if re.search(r"[<]", row[j]):
-                            self.cols.append(Num(row[j], j, row[j]))
+                            self.cols.append(Num(row[j], j, row[j], -1))
                         else:
                             self.cols.append(Num(row[j], j, row[j]))
                     else:
