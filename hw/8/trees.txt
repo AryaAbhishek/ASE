@@ -1,0 +1,33 @@
+TREE FOR ONE OF THE CLUSTERS and its ENVY CLUSTER
+cylinders = -inf...4
+|  cylinders = -inf...4
+|  |  cylinders = -inf...4 2254 (3)
+
+|  |  cylinders = 4...inf 2979 (3)
+
+|  cylinders = 4...inf
+|  |  !$new_class = -inf...0 2868 (2)
+
+|  |  !$new_class = 0...inf
+|  |  |  !$new_class = -inf...0 2807 (2)
+
+|  |  |  !$new_class = 0...inf 2945 (4)
+-----------------------------------------------------------
+TREE FOR ONE OF THE CLUSTERS and its ENVY CLUSTER
+cylinders = -inf...4 
+|  cylinders = -inf...4 
+|  |  cylinders = -inf...4 
+|  |  |  cylinders = -inf...4 27 (3)
+
+|  |  |  cylinders = 4...inf 28 (3)
+
+|  |  cylinders = 4...inf 29 (4)
+
+|  cylinders = 4...inf 
+|  |  cylinders = -inf...4 
+|  |  |  cylinders = -inf...4 25.5 (2)
+
+|  |  |  cylinders = 4...inf 33.5 (3)
+
+|  |  cylinders = 4...inf 35.7 (4)
+-----------------------------------------------------------

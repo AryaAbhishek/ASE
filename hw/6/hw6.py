@@ -59,16 +59,20 @@ def get_tree(rows, index, type, level):
 
 
 def show(tree, level=0):
-    for _ in range(level):
-        print("| ", end=" ")
-    # print(tree)
-    print("{0} = {1}...{2}".format(tree['text'], tree['low'], tree['high']), end=" ")
-    if not isinstance(tree['childs'], list):
-        print("{0} ({1})".format(tree['childs']['val'], tree['childs']['n']))
+    if isinstance(tree, list):
+        for each in tree:
+            show(each, level)
     else:
-        for each in tree['childs']:
-            print("")
-            show(each, level + 1)
+        for _ in range(level):
+            print("| ", end=" ")
+        # print(tree)
+        print("{0} = {1}...{2}".format(tree['text'], tree['low'], tree['high']), end=" ")
+        if not isinstance(tree['childs'], list):
+            print("{0} ({1})".format(tree['childs']['val'], tree['childs']['n']))
+        else:
+            for each in tree['childs']:
+                print("")
+                show(each, level + 1)
 
 
 def parse_lines(lines):

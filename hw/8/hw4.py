@@ -48,11 +48,8 @@ def cells(src):
         if n == 0:
             yield cells
         else:
-            # print(cells)
             temp = [compiler(cell) for cell in cells]
-            # print("temp",temp)
             oks = temp
-            # print(oks)
             yield [f(cell) for f, cell in zip(oks, cells)]
 
 
@@ -95,7 +92,6 @@ class Num(Col):
             a = 0
         self.col.append(a)
         self.n += 1
-        # print(self.lo,a)
         if self.lo > a:
             self.lo = a
         if self.hi < a:
@@ -165,13 +161,11 @@ class ABCD:
 
     def ABCD1(self, want, got):
         if want not in self.known:
-            # print("want",want)
             self.known[want] = 1
             self.a[want] = self.yes + self.no
         else:
             self.known[want] += 1
         if got not in self.known:
-            # print("got", got)
             self.known[got] = 1
             self.a[want] = self.yes + self.no
         if want == got:
@@ -240,7 +234,6 @@ class Sym(Col):
         self.n += 1
         self.cnt[v] += 1
         tmp = self.cnt[v]
-        # print(v, tmp)
         if tmp > self.most:
             self.most = tmp
             self.mode = v

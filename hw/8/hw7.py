@@ -9,13 +9,11 @@ import csv
 def distance(i, j, cols):
     d = n = 0
     p = 2
-    # print(cols)
     for col in cols:
         n += 1
         d0 = col.dist(i.cells[col.pos], j.cells[col.pos])
         d += (d0 ** p)
         # normalize distance
-    # print(p, n)
     return d ** (1 / p) / n ** (1 / p)
 
 
@@ -30,6 +28,7 @@ class random_projection_tree:
     def __init__(self):
         self.leaves = []
         self.children = []
+        self.table = None
         self.level = 0
         self.split_count = 0
         self.is_root = False
@@ -66,29 +65,30 @@ def print_tree(root):
         print(temp)
 
 
-class hw7:
+class HW7:
     def __init__(self, lines):
         seed(1)
         self.table = Table()
+        self.leaf_nodes = []
         self.lines = lines
         self.parse_lines()
         self.tree = self.split_point(self.table, 0)
-        print_tree(self.tree)
+        # print_tree(self.tree)
 
     def parse_lines(self):
-        # print("hello")
         for i, row in enumerate(self.lines):
             row = [x for x in row if x != ""]
             self.table.read_lines(i, row)
 
     def split_point(self, table, level):
-        # print("hello split")
         node = random_projection_tree()
         if len(table.rows) < 2 * pow(len(self.table.rows), 1 / 2):
             for each in table.goals:
                 node.leaves.append(table.cols[each-1])
+            node.table = table
             node.split_count = len(table.rows)
             node.level = level
+            self.leaf_nodes.append(node)
             return node
         else:
             _, best_points = self.best_pivot_points(table)
@@ -108,11 +108,7 @@ class hw7:
             return node
 
     def fast_map(self, table):
-        # print("fast_map")
         cols = [table.cols[col] for col in table.xs]
-        # print(table.rows)
-        # print(len(table.cols))
-        # print(len(table.rows))
         random_point = random.randint(0, len(table.rows)-1)
         pivot1, pivot2 = [], []
         for row in range(0, len(table.rows)):
@@ -131,7 +127,6 @@ class hw7:
         return pivot1_index, pivot2_Index, dist
 
     def best_pivot_points(self, table):
-        # print("best_pivot")
         count = 10
         start = len(table.rows)
         # left_split, right_split = 0, 0
@@ -140,7 +135,6 @@ class hw7:
             final_list = []
             count -= 1
             pivot_tuple = self.fast_map(table)
-            # print(table.xs)
             cols = [table.cols[col] for col in table.xs]
             for row in range(0, len(table.rows)):
                 dist = cosine_distance(table.rows[pivot_tuple[0]], table.rows[pivot_tuple[1]], table.rows[row], cols, pivot_tuple[2])
@@ -167,16 +161,3 @@ class hw7:
                 best_point = point1
 
         return best_tuple, best_point
-
-
-if __name__ == '__main__':
-    # hw = 'pom310000.csv'
-    hw = 'xomo10000.csv'
-    file = ""
-    with open(hw, 'r') as lines:
-        reader = csv.reader(lines, delimiter=' ', quotechar='|')
-        for row in reader:
-            file += ','.join(row)
-            file += '\n'
-    lines = fromString(file)
-    hw7(lines)
