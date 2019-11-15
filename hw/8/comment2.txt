@@ -1,0 +1,19 @@
+Step -7 -> Local vs Global Reasoning
+Answer ->
+    Suvodeep Majumder has given few points in section 2.1 of the paper which he uses to make point for generality(
+    Global reasoning) such as -
+    Generality - of the software which can hold against different projects
+    Trust - that model will not change and the assumtions made previously will still hold
+    Insight - (valuable) will be generated using the model for different projects
+    Training - will be easier for newcomers
+    Tool development - will become easier
+
+    with this he also gave some cases where generality may not hold such as -
+        one model may not cover all project and the generality tools also need to know the community of
+        within which the conclusion of model will be applied.
+
+    -> I agree with Suvodeep Majumder's reasoning about as when to go general and when to go local as most of
+    the project may be able to use a general software model to get valuable insight but it is not always
+    necessary that multiple project has to belong to same community and there may be different factor which
+    are valued to get insight for that project, in that case it is better to have different local model for that
+    project instead of using the general one.
